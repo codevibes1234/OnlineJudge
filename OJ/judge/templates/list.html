@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Problem List</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background: linear-gradient(135deg, #e0e7ff, #f8fafc);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      border: none;
+      border-radius: 1rem;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-modern {
+      transition: all 0.2s ease-in-out;
+      background-color: blue;
+      color: white;
+    }
+
+    .btn-modern:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+      color: red;
+      background-color: green;
+    }
+
+    .login-link {
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      z-index: 999;
+    }
+
+    .login-link a {
+      padding: 8px 16px;
+      background-color: #6366f1;
+      color: #fff;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .login-link a:hover {
+      background-color: #4f46e5;
+      transform: scale(1.05);
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+  {% if user.is_authenticated %}
+    <div class="login-link">
+      <a href="/user/{{user.id}}">{{user.username}}</a>
+    </div>
+  {% else %}
+    <div class="login-link">
+      <a href="/accounts/login/?next={{ request.path }}">Login/Signup</a>
+    </div>
+  {% endif %}
+  
+        {% if messages %}
+        {% for message in messages %}
+        {% if message.tags == "error" %}
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Oops!',
+                  text: "{{ message|escapejs }}",
+                  confirmButtonColor: '#3085d6'
+                });
+          });
+        </script>
+        {% else %}
+        <script>
+          document.addEventListener("DOMContentLoaded", function () {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'Yay!!',
+                  text: "{{ message|escapejs }}",
+                  confirmButtonColor: '#28a745'
+                });
+          });
+        </script>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+
+  <div class="card p-4" style="max-width: 500px; width: 100%;">
+    <h3 class="text-center mb-4">Choose a Problem</h3>
+    <div class="d-grid gap-3">
+      {% for problem in problems %}
+        <a href="/problems/{{ problem.id }}" class="btn btn-modern">
+          {{ problem.title }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

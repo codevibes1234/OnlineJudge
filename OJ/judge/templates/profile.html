@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    .logout-link {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+    }
+    #progressPie {
+      max-width: 200px;
+      margin: 0 auto;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-light">
+  <div class="container py-5">
+    <a href="/accounts/logout/?next={{ request.path }}" class="btn btn-outline-secondary logout-link">Logout</a>
+
+    <h1 class="text-center mb-4">Hello {{name}}!</h1>
+
+  {% if messages %}
+  {% for message in messages %}
+  {% if message.tags == "error" %}
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        Swal.fire({
+          icon: 'error',
+          title: 'Oops!',
+          text: "{{ message|escapejs }}",
+          confirmButtonColor: '#3085d6'
+        });
+      });
+    </script>
+    {% else %}
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        Swal.fire({
+          icon: 'success',
+          title: 'Yay!!',
+          text: "{{ message|escapejs }}",
+          confirmButtonColor: '#28a745'
+        });
+      });
+    </script>
+    {% endif %}
+    {% endfor %}
+    {% endif %}
+
+    <div class="mb-5 text-center">
+      <h5>Progress: {{ percentage|default:0 }}% problems solved</h5>
+      <canvas id="progressPie" width="200" height="200"></canvas>
+    </div>
+
+    <div class="accordion mb-4" id="solvedProblemsAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingSolved">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolved" aria-expanded="false" aria-controls="collapseSolved">
+            View Solved Problems
+          </button>
+        </h2>
+        <div id="collapseSolved" class="accordion-collapse collapse" aria-labelledby="headingSolved" data-bs-parent="#solvedProblemsAccordion">
+          <div class="accordion-body">
+            {% if solved_problems %}
+              <ul class="list-group">
+                {% for problem in solved_problems %}
+                  <li class="list-group-item">{{ problem.title }}</li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="text-muted">No problems solved yet.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion" id="submissionsAccordion">
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="headingSubmissions">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSubmissions" aria-expanded="false" aria-controls="collapseSubmissions">
+            View Submissions
+          </button>
+        </h2>
+        <div id="collapseSubmissions" class="accordion-collapse collapse" aria-labelledby="headingSubmissions" data-bs-parent="#submissionsAccordion">
+          <div class="accordion-body">
+            <table class="table table-hover">
+              <thead class="table-secondary">
+                <tr>
+                  <th>Submission Time</th>
+                  <th>Problem</th>
+                  <th>Verdict</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for submission in submissions %}
+                  <tr>
+                    <td>{{ submission.time }}</td>
+                    <td>{{ submission.problem.title }}</td>
+                    <td class="{% if submission.verdict == 'Accepted' %}text-success{% else %}text-danger{% endif %}">
+                      {{ submission.verdict }}
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="3" class="text-center text-muted">No submissions found.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const percentSolved = {{ percentage }};
+      const ctx = document.getElementById('progressPie').getContext('2d');
+      new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Solved', 'Remaining'],
+          datasets: [{
+            data: [percentSolved, 100 - percentSolved],
+            backgroundColor: ['#28a745', '#ff0000'],
+            borderWidth: 1,
+            borderColor: '#000000'
+          }]
+        },
+        options: {
+          cutout: '70%',
+          plugins: {
+            tooltip: { enabled: false },
+            legend: { display: false },
+          }
+        },
+        plugins: [{
+          id: 'centerText',
+          beforeDraw(chart) {
+            const {ctx, width, height} = chart;
+            ctx.restore();
+            const fontSize = (height / 114).toFixed(2);
+            ctx.font = fontSize + "em sans-serif";
+            ctx.textBaseline = "middle";
+
+            const text = percentSolved + "%";
+            const textX = Math.round((width - ctx.measureText(text).width) / 2);
+            const textY = height / 2;
+
+            ctx.fillStyle = '#000';
+            ctx.fillText(text, textX, textY);
+            ctx.save();
+          }
+        }]
+      });
+    });
+  </script>
+</body>
+</html>
