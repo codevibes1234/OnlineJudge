@@ -156,18 +156,20 @@
           <select class="form-select" name="language" id="language" required>
             <option value="" disabled selected>Select a language</option>
             <option value="cpp">C++</option>
-            <option value="python">Python</option>
-            <option value="java">Java</option>
+            <option value="py">Python</option>
+            <!--<option value="java">Java</option>-->
             <option value="c">C</option>
           </select>
         </div>
 
         <div class="mb-3">
           <label for="code_file" class="form-label">Upload Code</label>
-          <input type="file" class="form-control" name="code_file" id="code_file" accept=".py,.cpp,.java,.c" required />
+          <input type="file" class="form-control" name="code" id="code_file" accept=".py,.cpp,.c" required />
         </div>
 
-        <button type="submit" class="submit-btn">Submit</button>
+        {% if user.is_authenticated %}
+          <button type="submit" class="submit-btn">Submit</button>
+        {% endif %}
       </form>
     </div>
   </div>
@@ -180,14 +182,16 @@
           <tr>
             <th>Submission Time</th>
             <th>Problem</th>
+            <th>User</th>
             <th>Verdict</th>
           </tr>
         </thead>
         <tbody>
           {% for submission in submissions %}
-            <tr>
+            <tr onclick="window.location.href='/submissions/{{ submission.id }}'">
               <td>{{ submission.time }}</td>
               <td>{{ submission.problem.title }}</td>
+              <td>{{ submission.user.username }}</td>
               <td class="{% if submission.verdict == 'Accepted' %}text-success{% else %}text-danger{% endif %}">
                 {{ submission.verdict }}
               </td>

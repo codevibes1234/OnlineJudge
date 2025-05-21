@@ -22,9 +22,16 @@
 
 <body class="bg-light">
   <div class="container py-5">
-    <a href="/accounts/logout/?next={{ request.path }}" class="btn btn-outline-secondary logout-link">Logout</a>
+    {% if request.user.id == id %}
+      <a href="/accounts/logout/?next={{ request.path }}" class="btn btn-outline-secondary logout-link">Logout</a>
+      <h1 class="text-center mb-4">Hello {{name}}!</h1>
+    {% else %}
+      {% if not request.user.is_authenticated %}
+        <a href="/accounts/login/?next={{ request.path }}" class="btn btn-outline-secondary logout-link">Login</a>
+      {% endif %}
+      <h1 class="text-center mb-4">{{name}}</h1>
+    {% endif %}
 
-    <h1 class="text-center mb-4">Hello {{name}}!</h1>
 
   {% if messages %}
   {% for message in messages %}
@@ -71,7 +78,7 @@
             {% if solved_problems %}
               <ul class="list-group">
                 {% for problem in solved_problems %}
-                  <li class="list-group-item">{{ problem.title }}</li>
+                  <a href = "/problems/{{ problem.id }}"> <li class="list-group-item">{{ problem.title }}</li> </a>
                 {% endfor %}
               </ul>
             {% else %}
@@ -96,14 +103,16 @@
                 <tr>
                   <th>Submission Time</th>
                   <th>Problem</th>
+                  <th>User</th>
                   <th>Verdict</th>
                 </tr>
               </thead>
               <tbody>
                 {% for submission in submissions %}
-                  <tr>
+                <tr onclick="window.location.href='/submissions/{{ submission.id }}'">
                     <td>{{ submission.time }}</td>
                     <td>{{ submission.problem.title }}</td>
+                    <td>{{ submission.user.username }}</td>
                     <td class="{% if submission.verdict == 'Accepted' %}text-success{% else %}text-danger{% endif %}">
                       {{ submission.verdict }}
                     </td>

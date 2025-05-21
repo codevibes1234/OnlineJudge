@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Submission Result</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    .code-spoiler {
+      background-color: black;
+      color: #0f0;
+      font-family: monospace;
+      padding: 1rem;
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .spoiler-toggle {
+      cursor: pointer;
+    }
+    .status-pass {
+      color: #28a745;
+    }
+    .status-fail {
+      color: #dc3545;
+    }
+  </style>
+</head>
+<body class="bg-light">
+  <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+      <a class="navbar-brand" href="/">OnlineJudge</a>
+      <div class="collapse navbar-collapse justify-content-end">
+        {% if request.user.is_authenticated %}
+          <a href="/user/{{ request.user.id }}/" class="btn btn-outline-primary">Profile</a>
+        {% else %}
+          <a href="/accounts/login/?next={{ request.path }}" class="btn btn-primary">Login</a>
+        {% endif %}
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <div class="d-flex justify-content-between mb-4">
+      <div>
+        <a href="/user/{{ user.id }}/" class="btn btn-secondary me-2">User Profile</a>
+        <a href="/problems/{{ problem.id }}" class="btn btn-secondary">View Problem</a>
+      </div>
+    </div>
+
+    <!-- Code Spoiler -->
+    <div class="mb-4">
+      <h5 class="spoiler-toggle" data-bs-toggle="collapse" data-bs-target="#codeCollapse" aria-expanded="false" aria-controls="codeCollapse">
+        View Submitted Code
+    </h5>
+      <div class="collapse" id="codeCollapse">
+        <div class="code-spoiler">
+        {{text}}
+        </div>
+      </div>
+    </div>
+
+    <!-- Testcases -->
+    {% if compilationError == False %}
+        <div>
+            <h4>Test Cases</h4>
+            <div class="d-flex flex-column gap-3">
+            {% for tc in tcs %}
+                <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Test Case {{ forloop.counter }}</h5>
+                    <div class="mb-2">
+                    <strong>Input:</strong>
+                    <pre class="bg-light p-2 border">{{ tc.input }}</pre>
+                    </div>
+                    <div class="mb-2">
+                    <strong>Expected Output:</strong>
+                    <pre class="bg-light p-2 border">{{ tc.output }}</pre>
+                    </div>
+                    <div>
+                    <strong>Status:</strong>
+                    <span class="fw-bold {% if tc in list %}status-pass{% else %}status-fail{% endif %}">
+                        {% if tc in list %}Passed{% else %}Failed{% endif %}
+                    </span>
+                    </div>
+                </div>
+                </div>
+            {% empty %}
+                <p class="text-muted">No test cases available.</p>
+            {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <h3 class = "status-fail">Compilation Error</h3>
+    {% endif %}
+
+  </div>
+</body>
+</html>
