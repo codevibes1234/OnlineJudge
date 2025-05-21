@@ -23,3 +23,5 @@ judge -> contains all the components of the core website
 /user/<int:id> -> user profile
 
 /problems/<int:pid>/submissions/user/<int:uid>/ -> submissions made by a specific user for the specified problem
+
+/submissions/<int:sid> -> view specified submission
